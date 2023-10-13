@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pn.mapper.ProductMapper">
+<!--    查询商品行数-->
+  <select id="selectProductRowCount" resultType="java.lang.Integer">
+    select count(*) from product t1
+      join brand t2 on t1.brand_id=t2.brand_id
+      join supply t3 on t1.supply_id=t3.supply_id
+      join product_type t4 on t1.type_id=t4.type_id
+      join place t5 on t1.place_id=t5.place_id
+    <where>
+      <if test="storeId != null and storeId != ''">
+          t1.store_id=#{storeId}
+      </if>
+      <if test="productName != null and productName != ''">
+          and t1.product_name like "%"#{productName}"%"
+      </if>
+      <if test="brandName != null and brandName != ''">
+          and t2.brand_name like "%"#{productName}"%"
+      </if>
+      <if test="supplyName != null and supplyName != ''">
+          and t3.supply_name like "%"#{supplyName}"%"
+      </if>
+      <if test="typeName != null and typeName != ''">
+          and t4.type_id like "%"#{productName}"%"
+      </if>
+      <if test="placeName != null and placeName != ''">
+          and t5.place_name like "%"#{placeName}"%"
+      </if>
+      <if test="upDownState != null and upDownState != ''">
+          and t1.up_down_state=#{upDownState}
+      </if>
+      <if test="isOverDate==1">
+          and t1.supp_date &lt;= now()
+      </if>
+      <if test="isOverDate==0 and isOverDate !=''">
+          and t1.supp_date &gt; now()
+      </if>
+    </where>
+  </select>
+<!--    分页查询商品的方法-->
+    <select id="selectProductPage" resultType="product">
+        select t1.* ,t2.brand_name brandName,t3.supply_name supplyName,
+        t4.type_name typeName,t5.place_name placeName,t6.unit_name unitName,
+        t7.store_name storeName
+        from product t1 join brand t2 on t1.brand_id=t2.brand_id
+        join supply t3 on t1.supply_id=t3.supply_id
+        join product_type t4 on t1.type_id=t4.type_id
+        join place t5 on t1.place_id=t5.place_id
+        join unit t6 on t1.unit_id=t6.unit_id
+        join store t7 on t1.store_id=t7.store_id
+        <where>
+            <if test="product.storeId != null and product.storeId != ''">
+                t1.store_id=#{product.storeId}
+            </if>
+            <if test="product.productName != null and product.productName != ''">
+                and t1.product_name like "%"#{product.productName}"%"
+            </if>
+            <if test="product.brandName != null and product.brandName != ''">
+                and t2.brand_name like "%"#{product.productName}"%"
+            </if>
+            <if test="product.supplyName != null and product.supplyName != ''">
+                and t3.supply_name like "%"#{product.supplyName}"%"
+            </if>
+            <if test="product.typeName != null and product.typeName != ''">
+                and t4.type_id like "%"#{product.productName}"%"
+            </if>
+            <if test="product.placeName != null and product.placeName != ''">
+                and t5.place_name like "%"#{product.placeName}"%"
+            </if>
+            <if test="product.upDownState != null and product.upDownState != ''">
+                and t1.up_down_state=#{product.upDownState}
+            </if>
+            <if test="product.isOverDate==1">
+                and t1.supp_date &lt;= now()
+            </if>
+            <if test="product.isOverDate==0 and product.isOverDate != ''">
+                and t1.supp_date &gt; now()
+            </if>
+        </where>
+        order by  t1.create_time desc
+        limit #{page.limitIndex},#{page.pageSize}
+    </select>
+
+    <insert id="insertProduct">
+        insert into product values(
+<!--
+brandId: 2
+imgs: "midea_zh.jpg"
+inPrice: "3000"
+introduce: "美的空调，一晚只用一度电"
+memPrice: "3888"
+placeId: 1
+productDate: "2020-10-12"
+productInvent: 2
+productName: "switch"
+productNum: "midea1005"
+salePrice: "4000"
+storeId: 2
+suppDate: "2030-10-12"
+supplyId: 3
+typeId: 7
+typeName: "空调"
+unitId: 6-->
+          null,#{storeId},#{brandId},#{productName},
+        #{productNum},#{productInvent},#{typeId},
+        #{supplyId},#{placeId},#{unitId},#{introduce},
+        1,#{inPrice},#{salePrice},#{memPrice},now(),
+        null,#{createBy},null,#{imgs},
+        #{productDate},#{suppDate}
+                                  )
+    </insert>
+
+    <update id="updateProduct">
+        update product
+        <set>
+            <if test="storeId != null and storeId != ''">store_id = #{storeId},</if>
+            <if test="brandId != null and brandId != ''">brand_id = #{brandId},</if>
+            <if test="productName!= null and productName != ''">product_name = #{productName},</if>
+            <if test="productNum != null and productNum != ''">product_num = #{productNum},</if>
+            <if test="productInvent != null and productInvent != ''">product_invent = #{productInvent},</if>
+            <if test="typeId != null and typeId != ''">type_id = #{typeId},</if>
+            <if test="supplyId != null and supplyId != ''">supply_id = #{supplyId},</if>
+            <if test="placeId != null and placeId != ''">place_id = #{placeId},</if>
+            <if test="unitId != null and unitId != ''">unit_id = #{unitId},</if>
+            <if test="introduce != null and introduce != ''">introduce = #{introduce},</if>
+            <if test="inPrice != null and inPrice != ''">in_price = #{inPrice},</if>
+            <if test="salePrice != null and salePrice != ''">sale_price = #{salePrice},</if>
+            <if test="memPrice != null and memPrice != ''">mem_price = #{memPrice},</if>
+            <if test="imgs != null and imgs != ''">imgs = #{imgs},</if>
+            <if test="productDate != null ">product_date = #{productDate},</if>
+            <if test="suppDate != null ">supp_date = #{suppDate},</if>
+            <if test="upDownState != null and upDownState !=''">up_down_state=#{upDownState},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = now()
+
+        </set>
+        where product_id=#{productId}
+    </update>
+
+    <delete id="deleteProducts">
+        delete
+        from product
+        where product_id in
+        <foreach collection="productIds" item="productId" separator="," open="(" close=")">
+            #{productId}
+        </foreach>  ;
+    </delete>
+
+    <update id="updateProductInvent">
+        update product
+        set product_invent = product_invent + #{param1}
+        where product_id=#{param2}
+    </update>
+
+
+
+</mapper>

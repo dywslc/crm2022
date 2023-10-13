@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pn.mapper.RoleMapper">
+
+    <select id="selectRoleAll" resultType="role">
+        select * from role where role_state = 1
+    </select>
+
+    <select id="selectRoleRowCount" resultType="integer">
+        select count(*) from role
+        <where>
+            <if test="roleName != null and roleName != ''">
+                role_name like "%"#{roleName}"%"
+            </if>
+            <if test="roleCode != null and roleCode != ''">
+                and role_code like "%"#{roleCode}"%"
+            </if>
+            <if test="roleState != null and roleState != ''">
+                and role_state=#{roleState}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectRolePage" resultType="role">
+        select t1.* ,t2.user_code getCode
+        from role t1 join user_info t2 on t1.create_by = t2.user_id
+        <where>
+            <if test="role.roleName != null and role.roleName != ''">
+                t1.role_name like "%"#{role.roleName}"%"
+            </if>
+            <if test="role.roleCode != null and role.roleCode != ''">
+                and t1.role_code like "%"#{role.roleCode}"%"
+            </if>
+            <if test="role.roleState != null and role.roleState != ''">
+                and t1.role_state=#{role.roleState}
+            </if>
+        </where>
+        order by t1.create_time desc
+        limit #{page.limitIndex},#{page.pageSize}
+    </select>
+
+    <insert id="insertRole">
+        insert into role values(
+            null,#{roleName},#{roleDesc},#{roleCode},0,#{createBy},now(),null,null
+                            )
+    </insert>
+
+    <update id="updateRStateByRid">
+        update role set role_state = #{roleState} where role_id=#{roleId}
+    </update>
+</mapper>

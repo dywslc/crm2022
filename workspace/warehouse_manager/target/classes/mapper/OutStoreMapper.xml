@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pn.mapper.OutStoreMapper">
+  <insert id="insertOutStore">
+    insert into out_store values(
+      null,#{productId},#{storeId},
+      null,#{salePrice},#{outNum},
+      #{createBy},now(),0
+                                )
+  </insert>
+
+  <select id="selectOutStoreCount" resultType="java.lang.Integer">
+    select count(*)
+    from out_store t1 join product t2 on t1.product_id = t2.product_id
+    <where>
+      <if test="storeId != null and storeId != ''">
+        t1.store_id = #{storeId}
+      </if>
+      <if test="productName != null and productName != ''">
+        and t2.product_name like "%"#{productName}"%"
+      </if>
+      <if test="startTime != null and startTime != ''">
+        and t1.create_time &gt;= #{startTime}
+      </if>
+      <if test="endTime != null and endTime != ''">
+        and t1.create_time $lt; #{endTime}
+      </if>
+      <if test="isOut != null and isOut != ''">
+        and t1.is_out = #{isOut}
+      </if>
+    </where>;
+  </select>
+
+  <select id="selectOutStorePage" resultType="outStore">
+    select t1.*,t2.store_name storeName,t3.product_name productName,t4.user_code userCode,t5.user_code tallyCode
+    from out_store t1
+            join store t2 on t1.store_id = t2.store_id
+            join product t3 on t1.product_id = t3.product_id
+            join user_info t4 on t1.create_by = t4.user_id
+            left join user_info t5 on t1.tally_id = t5.user_id
+    <where>
+      <if test="outStore.storeId != null and outStore.storeId != ''">
+        t1.store_id = #{outStore.storeId}
+      </if>
+      <if test="outStore.productName != null and outStore.productName != ''">
+        and t2.product_name like "%"#{outStore.productName}"%"
+      </if>
+      <if test="outStore.startTime != null and outStore.startTime != ''">
+        and t1.create_time &gt;= #{outStore.startTime}
+      </if>
+      <if test="outStore.endTime != null and outStore.endTime != ''">
+        and t1.create_time $lt; #{outStore.endTime}
+      </if>
+      <if test="outStore.isOut != null and outStore.isOut != ''">
+        and t1.is_out =#{outStore.isOut}
+      </if>
+    </where>
+    order by t1.create_time desc
+    limit #{page.limitIndex},#{page.pageSize}
+  </select>
+</mapper>
