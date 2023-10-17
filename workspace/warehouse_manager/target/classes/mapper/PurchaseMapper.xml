@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pn.mapper.PurchaseMapper">
+  <insert id="insertPurchase">
+    insert into buy_list values (
+        null,#{productId},#{storeId},
+        #{buyNum},#{factBuyNum},now(),#{supplyId},
+        #{placeId},#{buyUser},#{phone},0
+    )
+  </insert>
+
+    <select id="selectPurchaseCount" resultType="java.lang.Integer">
+        select count(*) from buy_list t1 join product t2 on t1.product_id = t2.product_id
+        <where>
+            <if test="storeId != null and storeId != ''">
+                t1.store_id = #{storeId}
+            </if>
+            <choose>
+                <when test="startTime != null and startTime != '' and endTime != null and endTime != ''" >
+                    and t1.buy_time between #{startTime} and #{endTime}
+                </when><when test="startTime != null and startTime != ''" >
+                    and t1.buy_time &gt;= #{startTime}
+                </when><when test="endTime != null and endTime != ''" >
+                    and t1.buy_time &lt;#{endTime}
+                </when>
+            </choose>
+            <if test="productName != null and productName != ''">
+                and t2.product_name like "%"#{productName}"%"
+            </if>
+            <if test="buyUser != null and buyUser != ''">
+                and t1.buy_user like "%"#{buyUser}"%"
+            </if>
+            <if test="isIn != null and isIn != ''">
+                and t1.is_in = #{isIn}
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectPurchasePage" resultType="Purchase">
+        select t1.*,t2.product_name productName,t3.store_name storeName from buy_list t1
+        join product t2 on t1.product_id=t2.product_id
+        join store t3 on t1.store_id = t3.store_id
+        <where>
+            <if test="purchase.storeId != null and purchase.storeId != ''">
+                t1.store_id = #{purchase.storeId}
+            </if>
+            <choose>
+                <when test="purchase.startTime != null and purchase.startTime != '' and purchase.endTime != null and purchase.endTime != ''" >
+                    and t1.buy_time between #{purchase.startTime} and #{purchase.endTime}
+                </when><when test="purchase.startTime != null and purchase.startTime != ''" >
+                and t1.buy_time &gt;= #{purchase.startTime}
+            </when><when test="purchase.endTime != null and purchase.endTime != ''" >
+                and t1.buy_time &lt;#{purchase.endTime}
+            </when>
+            </choose>
+            <if test="purchase.productName != null and purchase.productName != ''">
+                and t2.product_name like "%"#{purchase.productName}"%"
+            </if>
+            <if test="purchase.buyUser != null and purchase.buyUser != ''">
+                and t1.buy_user like "%"#{purchase.buyUser}"%"
+            </if>
+            <if test="purchase.isIn != null and purchase.isIn != ''">
+                and t1.is_in = #{purchase.isIn}
+            </if>
+        </where>
+        order by t1.buy_time desc
+        limit #{page.limitIndex},#{page.pageSize};
+    </select>
+
+    <update id="updatePurchase">
+        update buy_list
+        <set>
+            <if test="buyNum != null and buyNum != ''">buy_num=#{buyNum},</if>
+            <if test="factBuyNum != null and factBuyNum != ''">fact_buy_num=#{factBuyNum},</if>
+        </set>
+         where buy_id=#{buyId}
+    </update>
+</mapper>

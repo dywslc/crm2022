@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pn.mapper.RoleAuthMapper">
+
+  <select id="selectAuthByRid" resultType="Auth">
+    select t2.*
+    from role_auth t1
+    join auth_info t2
+    on t1.auth_id=t2.auth_id
+    where t1.role_id=#{roleId} and t2.auth_state=1;
+  </select>
+</mapper>
